@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}My shop{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  </head>
+  <body>
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="{% url 'shop:product_list' %}">
+            SHOP
+          </a>
+        </div>
+        <p class="navbar-text">BEST OF THE BEST</p>
+
+        {% with total_items=cart|length %}
+          {% if cart|length > 0 %}
+          <p class="navbar-text navbar-right">
+            <span style="font-size:16px" class="glyphicon glyphicon-shopping-cart"></span>
+            <a href="{% url 'cart:cart_detail' %}">
+              {{ total_items }} item{{ total_items|pluralize }},
+              {{ cart.get_total_price|floatformat:"0" }}kzt
+            </a>
+          </p>
+          {% else %}
+            <p class="navbar-text navbar-right">Your cart is empty.</p>
+          {% endif %}
+        {% endwith %}
+      </div>
+    </nav>
+
+    <div class="container">
+      {% block content %}
+      {% endblock %}
+    </div>
+
+
+    <script src="{% static 'js/jquery.min.js' %}" charset="utf-8"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}" charset="utf-8"></script>
+  </body>
+</html>

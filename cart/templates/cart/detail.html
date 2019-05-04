@@ -1,0 +1,87 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}
+  Your shopping cart
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-12">
+      <h1>Your shopping cart</h1>
+
+      <table class="table">
+        <thead>
+          <th>Image</th>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Remove</th>
+          <th>Unit price</th>
+          <th>Price</th>
+        </thead>
+        <tbody>
+          {% for item in cart %}
+            {% with product=item.product %}
+              <tr>
+                <td>
+                  <a href="#">
+                    <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/noimage.jpg' %}{% endif %}" style="width: 120px;" />
+                  </a>
+                </td>
+                <td>{{ product.name }}</td>
+                <td>
+                  <form action="{% url 'cart:cart_add' product.id %}" method="post">
+                    {{ item.update_quantity_form.quantity }}
+                    {{ item.update_quantity_form.update }}
+                    <input class="btn btn-default" type="submit" value="Update">
+                    {% csrf_token %}
+                  </form>
+                </td>
+                <td><a href="{% url 'cart:cart_remove' product.id %}">Remove</a></td>
+                <td>{{ item.price|floatformat:"0" }}</td>
+                <td>{{ item.total_price|floatformat:"0" }}</td>
+              </tr>
+            {% endwith %}
+          {% endfor %}
+
+          {% if cart.coupon %}
+            <tr class="subtotal">
+              <td><strong>Subtotal</strong></td>
+              <td colspan="4"></td>
+              <td>{{ cart.get_total_price|floatformat:"3" }}kzt</td>
+            </tr>
+            <tr>
+              <td>
+                <strong>"{{ cart.coupon.code }}" coupon
+                ({{ cart.coupon.code }}% off)</strong>
+              </td>
+              <td colspan="4"></td>
+              <td style="color:#5cb85c; font-size: 20px;">- {{ cart.get_discount|floatformat:"0" }} kzt</td>
+            </tr>
+          {% endif %}
+          <tr class="total">
+            <td><strong>Total</strong></td>
+            <td colspan="4"></td>
+            <td style="color:#337ab7; font-size: 20px;">{{ cart.get_total_price_after_discount|floatformat:"0" }} kzt</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="row">
+      <div class="col-md-8">
+        <p>Apply a coupon:</p>
+        <form action="{% url 'coupons:apply' %}" method="post">
+          {{ coupon_apply_form }}
+          <input class="btn btn-success" type="submit" value="Apply">
+          {% csrf_token %}
+        </form>
+      </div>
+      <div class="col-md-4" style="text-align:right;">
+        <a class="btn btn-default" href="{% url 'shop:product_list' %}">Continue shopping</a>
+        <a class="btn btn-primary" href="{% url 'orders:order_create' %}">Checkout</a>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
